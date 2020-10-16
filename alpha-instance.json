@@ -1,32 +1,33 @@
 {
-  "variables": {},
-  "builders": [
-      {
-          "type": "arm-image",
-          "iso_url": "https://downloads.raspberrypi.org/raspios_lite_armhf_latest",
-          "iso_checksum": "sha256:4522df4a29f9aac4b0166fbfee9f599dab55a997c855702bfe35329c13334668"
-      }
-  ],
-  "provisioners": [
-      {
-          "type": "file",
-          "source": "./install-scripts/install-hashitool.sh",
-          "destination": "/usr/local/bin/install-hashitool"
-      },
-      {
-          "type": "file",
-          "source": "./install-scripts/base-provisioner.sh",
-          "destination": "/usr/local/bin/base-provisioner"
-      },
-      {
-          "type": "shell",
-          "inline": [
-              "chmod 755 /usr/local/bin/base-provisioner",
-              "chmod 755 /usr/local/bin/install-hashitool",
-              "base-provisioner",
-              "install-hashitool nomad 0.12.5 arm64",
-              "install-hashitool consul 1.8.4 arm64"
-          ]
-      }
-  ]
+    "variables": {},
+    "builders": [
+        {
+            "type": "arm-image",
+            "iso_url": "https://downloads.raspberrypi.org/raspios_lite_armhf_latest",
+            "target_image_size": 30000000000,
+            "iso_checksum": "sha256:4522df4a29f9aac4b0166fbfee9f599dab55a997c855702bfe35329c13334668"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "./install-scripts/install-hashitool.sh",
+            "destination": "/usr/local/bin/install-hashitool"
+        },
+        {
+            "type": "file",
+            "source": "./install-scripts/base-provisioner.sh",
+            "destination": "/usr/local/bin/base-provisioner"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "chmod 755 /usr/local/bin/base-provisioner",
+                "chmod 755 /usr/local/bin/install-hashitool",
+                "install-hashitool nomad 0.12.5 arm64",
+                "install-hashitool consul 1.8.4 arm64",
+                "base-provisioner"
+            ]
+        }
+    ]
 }
