@@ -17,3 +17,11 @@ function fail {
     echo -e "${RED}[error] $1${CLEAR_COLOR}"
     exit 1
 }
+
+YAML_DATASOURCE="$(mktemp -d /tmp/prometheusXXXX)"
+YAML_DATASOURCE_FILE="${YAML_DATASOURCE}/data.yaml"
+cat > "${YAML_DATASOURCE_FILE}" << EOF
+bind_addr: "$(ifconfig | grep 'inet 192' | awk '{print $2}')"
+EOF
+
+gomplate -d "data=file://${YAML_DATASOURCE_FILE}" -f /etc/prometheus/prometheus.yaml.template -o /etc/prometheus/prometheus.yaml

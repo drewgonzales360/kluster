@@ -1,0 +1,17 @@
+[Unit]
+Description="HashiCorp Nomad - Workload orchestration"
+Documentation=https://www.nomadproject.io/
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=nomad
+ExecStartPre=/etc/nomad/pre-exec.sh
+ExecStart=/usr/local/bin/nomad agent -config /etc/nomad/nomad.hcl
+ExecReload=/bin/kill --signal HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

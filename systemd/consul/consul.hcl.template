@@ -1,0 +1,15 @@
+bind_addr = "{{ (datasource "data").bind_addr }}"
+client_addr = "{{ (datasource "data").bind_addr }}"
+
+bootstrap_expect = 1
+
+server = true
+
+data_dir = "/etc/consul/data"
+
+ui = true
+
+telemetry {
+    prometheus_retention_time = "12h"
+    disable_hostname = true
+}

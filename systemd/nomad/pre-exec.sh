@@ -13,6 +13,15 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 CLEAR_COLOR='\033[0m'
 
-GIT_ROOT="$(git rev-parse --show-toplevel)"
+function fail {
+    echo -e "${RED}[error] $1${CLEAR_COLOR}"
+    exit 1
+}
 
-docker run --rm -it -v "${GIT_ROOT}":/code --network host -w /code drewgonzales360/drew bash
+YAML_DATASOURCE="$(mktemp -d /tmp/nomadXXXX)"
+YAML_DATASOURCE_FILE="${YAML_DATASOURCE}/data.yaml"
+cat > "${YAML_DATASOURCE_FILE}" << EOF
+bind_addr: "$(ifconfig | grep 'inet 192' | awk '{print $2}')"
+EOF
+
+gomplate -d "data=file://${YAML_DATASOURCE_FILE}" -f /etc/nomad/nomad.hcl.template -o /etc/nomad/nomad.hcl

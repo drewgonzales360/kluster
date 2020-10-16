@@ -17,3 +17,11 @@ function fail {
     echo -e "${RED}[error] $1${CLEAR_COLOR}"
     exit 1
 }
+
+VERSION="${1:?Specify a version}"
+CHIP_ARCH="${2:?Specify a chip architecture}"
+
+DOWNLOAD_LINK="https://github.com/hairyhenderson/gomplate/releases/download/v${VERSION}/gomplate_linux-${CHIP_ARCH}"
+
+sudo curl -L "${DOWNLOAD_LINK}" -o /usr/local/bin/gomplate
+sudo chmod 755 /usr/local/bin/gomplate

@@ -18,17 +18,15 @@ function fail {
     exit 1
 }
 
-sudo apt-get update
-sudo apt-get upgrade -y
-DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
-  vim          \
-  curl         \
-  git          \
-  wget         \
-  sudo         \
-  iputils-ping \
-  telnet       \
-  net-tools    \
-  dnsutils     \
-  systemd      \
-  unzip
+PRODUCT="loki"
+LOKI_VERSION="${1}"
+CHIP_ARCH="${2}"
+DOWNLOAD_LINK="https://github.com/grafana/loki/releases/download/v${LOKI_VERSION}/loki-linux-${CHIP_ARCH}.zip"
+
+TEMP_DIR="/tmp/${PRODUCT}"
+mkdir -p "${TEMP_DIR}"
+curl -L "${DOWNLOAD_LINK}" -o "${TEMP_DIR}"/downloaded_file.zip
+sudo unzip "${TEMP_DIR}"/downloaded_file.zip -d /tmp
+rm -rf "${TEMP_DIR}"
+
+sudo mv "/tmp/loki-linux-${CHIP_ARCH}" /usr/local/bin/loki

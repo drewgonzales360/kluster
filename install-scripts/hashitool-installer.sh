@@ -22,10 +22,6 @@ PRODUCT="${1:?Specify a product}"
 VERSION="${2:?Specify a version}"
 CHIP_ARCH="${3:?Specify a chip architecture}"
 
-if [[ "${CHIP_ARCH}" != "arm64" && "${CHIP_ARCH}" != "amd64" ]]; then
-    fail "allowed chip architectures are amd64 and arm64"
-fi
-
 DOWNLOAD_LINK="https://releases.hashicorp.com/${PRODUCT}/${VERSION}/${PRODUCT}_${VERSION}_linux_${CHIP_ARCH}.zip"
 
 TEMP_DIR="/tmp/${PRODUCT}"
@@ -33,3 +29,7 @@ mkdir -p "${TEMP_DIR}"
 curl -L "${DOWNLOAD_LINK}" -o "${TEMP_DIR}"/downloaded_file.zip
 sudo unzip "${TEMP_DIR}"/downloaded_file.zip -d /usr/local/bin
 rm -rf "${TEMP_DIR}"
+
+sudo useradd "${PRODUCT}" -s /bin/bash
+sudo mkdir "/etc/${PRODUCT}"
+sudo chown -R "${PRODUCT}":${PRODUCT} "/etc/${PRODUCT}"
