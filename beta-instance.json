@@ -1,0 +1,156 @@
+{
+    "variables": {
+        "wifi_name": "",
+        "wifi_password": ""
+    },
+    "builders": [
+        {
+            "type": "arm-image",
+            "image_type": "raspberrypi",
+            "qemu_binary": "qemu-aarch64-static",
+            "output_filename": "output-arm-image/beta-instance.iso",
+            "iso_url": "https://cdimage.ubuntu.com/releases/20.04.1/release/ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz",
+            "iso_checksum": "sha256:aadc64a1d069c842e56a4289fe1a6b4b5a0af4efcf95bcce78eb2a80fe5270f4",
+            "target_image_size": 8192000000,
+            "image_mounts": [
+                "/boot/firmware",
+                "/"
+            ],
+            "chroot_mounts": [
+                [
+                    "proc",
+                    "proc",
+                    "/proc"
+                ],
+                [
+                    "sysfs",
+                    "sysfs",
+                    "/sys"
+                ],
+                [
+                    "bind",
+                    "/dev",
+                    "/dev"
+                ],
+                [
+                    "devpts",
+                    "devpts",
+                    "/dev/pts"
+                ],
+                [
+                    "binfmt_misc",
+                    "binfmt_misc",
+                    "/proc/sys/fs/binfmt_misc"
+                ],
+                [
+                    "bind",
+                    "/run/systemd/resolve",
+                    "/run/systemd/resolve"
+                ]
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "adduser --system --disabled-password --group --shell /bin/bash booboo",
+                "mkdir -p /home/booboo/.ssh",
+                "echo 'booboo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "{{pwd}}/systemd/ssh/authorized_keys",
+            "destination": "/home/booboo/.ssh/authorized_keys"
+        },
+        {
+            "type": "file",
+            "source": "./install-scripts/hashitool-installer.sh",
+            "destination": "/tmp/hashitool-installer"
+        },
+        {
+            "type": "file",
+            "source": "./install-scripts/base-provisioner.sh",
+            "destination": "/tmp/base-provisioner"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/wifi/network-config.sh",
+            "destination": "/tmp/network-config"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/loki/loki-installer.sh",
+            "destination": "/tmp/loki-installer"
+        },
+        {
+            "type": "file",
+            "source": "./install-scripts/gomplate-installer.sh",
+            "destination": "/tmp/gomplate-installer"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "chmod 600 /home/booboo/.ssh/authorized_keys",
+                "chown -R booboo:booboo /home/booboo/.ssh",
+                "sed -i 's|#PasswordAuthentication yes|PasswordAuthentication no|g' /etc/ssh/sshd_config",
+                "touch /boot/ssh",
+                "bash /tmp/base-provisioner",
+                "bash /tmp/hashitool-installer nomad 0.12.5 arm64",
+                "bash /tmp/hashitool-installer consul 1.8.4 arm64",
+                "bash /tmp/loki-installer 1.6.1 arm64",
+                "bash /tmp/gomplate-installer 3.8.0 arm64",
+                "bash /tmp/network-config \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\"",
+                "curl -fsSL get.docker.com -o /tmp/get-docker.sh && sh /tmp/get-docker.sh",
+                "usermod -aG docker nomad"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "./systemd/consul/consul.service",
+            "destination": "/etc/systemd/system/consul.service"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/consul/consul-client.hcl.template",
+            "destination": "/etc/consul/consul.hcl.template"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/consul/pre-exec.sh",
+            "destination": "/etc/consul/pre-exec.sh"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "chmod 755 /etc/consul/pre-exec.sh",
+                "sudo systemctl enable consul",
+                "sudo chown -R consul:consul /etc/consul"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "./systemd/nomad/nomad.service",
+            "destination": "/etc/systemd/system/nomad.service"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/nomad/nomad-client.hcl.template",
+            "destination": "/etc/nomad/nomad.hcl.template"
+        },
+        {
+            "type": "file",
+            "source": "./systemd/nomad/pre-exec.sh",
+            "destination": "/etc/nomad/pre-exec.sh"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "chmod 755 /etc/nomad/pre-exec.sh",
+                "sudo systemctl enable nomad",
+                "sudo chown -R nomad:nomad /etc/nomad"
+            ]
+        }
+    ]
+}
