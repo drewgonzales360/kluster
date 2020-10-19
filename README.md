@@ -11,6 +11,7 @@ This means that the Beta instances need some way to discover the Alpha when they
 Once the Alpha has an IP address, I bake the Beta instances and hardcode the IP address of the Alpha into the Beta instances.
 
 Be sure to put your public key in the authorized keys file.
+
 ## Getting Started
 
 #### Set up the Alpha
