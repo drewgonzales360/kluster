@@ -1,7 +1,9 @@
 {
     "variables": {
         "wifi_name": "",
-        "wifi_password": ""
+        "wifi_password": "",
+        "git_branch": "",
+        "git_hash": ""
     },
     "builders": [
         {
@@ -95,6 +97,11 @@
             "destination": "/tmp/gomplate-installer"
         },
         {
+            "type": "file",
+            "source": "./install-scripts/set-version.sh",
+            "destination": "/tmp/set-version"
+        },
+        {
             "type": "shell",
             "inline": [
                 "chmod 600 /home/booboo/.ssh/authorized_keys",
@@ -108,7 +115,9 @@
                 "bash /tmp/prometheus-installer 2.22.0 arm64",
                 "bash /tmp/gomplate-installer 3.8.0 arm64",
                 "bash /tmp/network-config \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\"",
-                "cat /boot/firmware/network-config"
+                "bash /tmp/set-version {{user `git_branch`}} {{user `git_hash`}}",
+                "curl -fsSL get.docker.com -o /tmp/get-docker.sh && sh /tmp/get-docker.sh",
+                "usermod -aG docker nomad"
             ]
         },
         {
@@ -167,7 +176,6 @@
             "source": "./systemd/prometheus/pre-exec.sh",
             "destination": "/etc/prometheus/pre-exec.sh"
         },
-
         {
             "type": "file",
             "source": "./systemd/prometheus/prometheus.service",

@@ -90,6 +90,11 @@
             "destination": "/tmp/gomplate-installer"
         },
         {
+            "type": "file",
+            "source": "./install-scripts/set-version.sh",
+            "destination": "/tmp/set-version"
+        },
+        {
             "type": "shell",
             "inline": [
                 "chmod 600 /home/booboo/.ssh/authorized_keys",
@@ -102,6 +107,7 @@
                 "bash /tmp/loki-installer 1.6.1 arm64",
                 "bash /tmp/gomplate-installer 3.8.0 arm64",
                 "bash /tmp/network-config \"{{user `wifi_name`}}\" \"{{user `wifi_password`}}\"",
+                "bash /tmp/set-version {{user `git_branch`}} {{user `git_hash`}}",
                 "curl -fsSL get.docker.com -o /tmp/get-docker.sh && sh /tmp/get-docker.sh",
                 "usermod -aG docker nomad"
             ]
