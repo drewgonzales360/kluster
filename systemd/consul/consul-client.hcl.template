@@ -1,0 +1,15 @@
+node_name = "beta-{{ (datasource "data").bind_addr }}"
+bind_addr = "{{ (datasource "data").bind_addr }}"
+client_addr = "{{ (datasource "data").bind_addr }}"
+
+# When a beta instance is provisioned, we already know who the alpha is.
+# We're hard coding this IP to avoid any other logical changes between an
+# alpha and beta instance.
+retry_join = ["192.168.86.202"]
+
+data_dir = "/etc/consul/data"
+
+telemetry {
+    prometheus_retention_time = "12h"
+    disable_hostname = true
+}

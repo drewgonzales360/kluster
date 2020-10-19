@@ -1,3 +1,4 @@
+node_name = "alpha-{{ (datasource "data").bind_addr }}"
 bind_addr = "{{ (datasource "data").bind_addr }}"
 client_addr = "{{ (datasource "data").bind_addr }}"
 
